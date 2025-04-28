@@ -500,7 +500,7 @@ fn exec(code: &str) {
 fn usage() {
     println!(
         "Usage: atto [file]
-Or use std in: [file] | atto"
+Or use std in: cat [file] | atto"
     );
 }
 
