@@ -467,6 +467,13 @@ fn read_file(fname: &str) -> Result<String, std::io::Error> {
     }
 }
 
+fn read_stdin() -> Result<String, std::io::Error> {
+    let code = String::new();
+    for line in std::io::stdin().lines() {
+
+    }
+}
+
 fn exec(code: &str) {
     let _ = parse_funcs(lex(&with_core(&code)).iter())
         .map(|funcs| {
@@ -480,14 +487,13 @@ fn exec(code: &str) {
 }
 
 fn usage() {
-    println!("Usage: atto [file]");
+    println!("Usage: atto [file]
+Or use std in: [file] | atto");
 }
 
 fn main() {
     match &env::args().nth(1) {
-        None => {
-            let input = std::io::stdin().lines();
-        }
+        None => {}
         Some(arg) if env::args().count() == 2 => match read_file(arg) {
             Ok(code) => exec(&code),
             Err(e) => println!("Error: {}", e),
