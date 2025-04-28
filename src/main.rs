@@ -467,10 +467,21 @@ fn read_file(fname: &str) -> Result<String, std::io::Error> {
     }
 }
 
-fn read_stdin() -> Result<String, std::io::Error> {
-    let code = String::new();
-    for line in std::io::stdin().lines() {
-
+fn read_stdin() -> Result<String, Error> {
+    let mut code = String::new();
+    loop {
+        match io::stdin().read_line(&mut code) {
+            Ok(u) => {
+                if 0 == u {
+                    break;
+                }
+            }
+            Err(_) => break,
+        }
+    }
+    match code.len() {
+        0 => Err(Error::CannotFind("stdin".to_string())),
+        _ => Ok(code),
     }
 }
 
@@ -487,13 +498,18 @@ fn exec(code: &str) {
 }
 
 fn usage() {
-    println!("Usage: atto [file]
-Or use std in: [file] | atto");
+    println!(
+        "Usage: atto [file]
+Or use std in: [file] | atto"
+    );
 }
 
 fn main() {
     match &env::args().nth(1) {
-        None => {}
+        None => match read_stdin() {
+            Ok(code) => exec(&code),
+            Err(_) => usage(),
+        },
         Some(arg) if env::args().count() == 2 => match read_file(arg) {
             Ok(code) => exec(&code),
             Err(e) => println!("Error: {}", e),
