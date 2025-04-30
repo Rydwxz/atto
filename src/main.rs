@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     env, fs,
-    io::{self, prelude::*},
+    io::{self, prelude::*, IsTerminal},
     slice,
 };
 
@@ -505,11 +505,18 @@ Or use std in: cat [file] | atto"
 }
 
 fn main() {
+    let stdin = io::stdin();
     match &env::args().nth(1) {
-        None => match read_stdin() {
-            Ok(code) => exec(&code),
-            Err(_) => usage(),
-        },
+        None => {
+            if stdin.is_terminal() {
+                usage();
+            } else {
+                match read_stdin() {
+                    Ok(code) => exec(&code),
+                    Err(_) => println!("Error: nothing found in stdin"),
+                }
+            }
+        }
         Some(arg) if env::args().count() == 2 => match read_file(arg) {
             Ok(code) => exec(&code),
             Err(e) => println!("Error: {}", e),
